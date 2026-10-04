@@ -26,19 +26,55 @@ class _NotePageState extends State<NotePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6200EE),
-        title: const Text('Note App'),
+        backgroundColor: const Color(0xFFF8F9FC),
+
+        surfaceTintColor: Colors.transparent,
+
+        title: const Row(
+          children: [
+            Icon(Icons.note_alt_outlined, color: Color(0xFF263238), size: 28),
+
+            SizedBox(width: 10),
+
+            Text(
+              'My Notes',
+              style: TextStyle(
+                color: Color(0xFF263238),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(right: 16),
+
             child: TextButton(
               onPressed: () {
-                HiveHelper.deleteAllNotes();
-                setState(() {});
+                if (HiveHelper.myNotes.isNotEmpty) {
+                  HiveHelper.deleteAllNotes();
+                  setState(() {});
+                }
               },
+
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFFFFEBEE),
+                foregroundColor: const Color(0xFFE53935),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+
               child: const Text(
                 'Clear All',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -145,38 +181,73 @@ class _NotePageState extends State<NotePage> {
                     },
                     child: Container(
                       width: double.infinity,
-                      margin: const EdgeInsets.all(20),
-                      height: 300,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      height: 200,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: index == 0
-                            ? const Color.fromARGB(255, 52, 201, 52)
-                            : index % 2 == 0
-                            ? const Color.fromARGB(255, 100, 100, 100)
-                            : const Color.fromARGB(255, 255, 0, 0),
-                      ),
-                      child: Center(
-                        child: Text(
-                          HiveHelper.myNotes[index],
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
+                        color: [
+                          const Color(0xFFE8F5E9), // Light Green
+                          const Color(0xFFE3F2FD), // Light Blue
+                          const Color(0xFFFFF3E0), // Light Orange
+                          const Color(0xFFF3E5F5), // Light Purple
+                        ][index % 4],
+
+                        borderRadius: BorderRadius.circular(20),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 5),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
-                  ),
 
-                  Positioned(
-                    top: 20,
-                    right: 20,
-                    child: IconButton(
-                      onPressed: () {
-                        HiveHelper.deleteNote(index);
+                      child: Stack(
+                        children: [
+                          // Note Content
+                          Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: Text(
+                                HiveHelper.myNotes[index],
+                                style: const TextStyle(
+                                  color: Color(0xFF263238),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
 
-                        setState(() {});
-                      },
-                      icon: const Icon(Icons.delete, color: Colors.white),
+                          // Delete Button
+                          Positioned(
+                            top: 15,
+                            right: 15,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                shape: BoxShape.circle,
+                              ),
+                              child: IconButton(
+                                onPressed: () {
+                                  HiveHelper.deleteNote(index);
+                                  setState(() {});
+                                },
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Color(0xFFE53935),
+                                  size: 22,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
