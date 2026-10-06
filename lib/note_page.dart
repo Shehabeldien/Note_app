@@ -1,29 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, ReadContext;
 import 'package:get/get.dart';
 import 'package:note_app/hive.helper.dart';
 
-class NotePage extends StatefulWidget {
-  const NotePage({super.key});
+import 'cubit/cubit/note_cubit.dart';
 
-  @override
-  State<NotePage> createState() => _NotePageState();
-}
-
-class _NotePageState extends State<NotePage> {
+class NotePageState extends StatelessWidget {
+  NotePageState({super.key});
   final _controller = TextEditingController();
-  bool isloading = false;
-  @override
-  void didChangeDependencies() async {
-    isloading = true;
-
-    await HiveHelper.getNotes();
-    isloading = false;
-    setState(() {});
-    super.didChangeDependencies();
-  }
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<NoteCubit>();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8F9FC),
@@ -55,8 +44,7 @@ class _NotePageState extends State<NotePage> {
             child: TextButton(
               onPressed: () {
                 if (HiveHelper.myNotes.isNotEmpty) {
-                  HiveHelper.deleteAllNotes();
-                  setState(() {});
+                  cubit.deleteAllNotes();
                 }
               },
 
@@ -108,11 +96,8 @@ class _NotePageState extends State<NotePage> {
                 TextButton(
                   onPressed: () {
                     if (_controller.text.isNotEmpty) {
-                      HiveHelper.addNote(_controller.text);
-                      setState(() {});
-
+                      cubit.addNote(_controller.text);
                       Get.back();
-
                       _controller.clear();
                     }
                   },
@@ -125,9 +110,14 @@ class _NotePageState extends State<NotePage> {
         child: const Icon(Icons.add),
       ),
 
-      body: isloading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
+      body: BlocBuilder<NoteCubit, NoteState>(
+        builder: (context, state) {
+          if (state is Noteloadingstate) {
+            return Center(child: CircularProgressIndicator());
+          } else if (state is NoteEmptyState) {
+            return Center(child: Text('No notes available.'));
+          } else {
+            return ListView.builder(
               itemCount: HiveHelper.myNotes.length,
               itemBuilder: (context, index) => Stack(
                 children: [
@@ -161,16 +151,8 @@ class _NotePageState extends State<NotePage> {
                             TextButton(
                               onPressed: () {
                                 if (_controller.text.isNotEmpty) {
-                                  HiveHelper.updateNote(
-                                    index,
-                                    _controller.text,
-                                  );
-
-                                  setState(() {});
-
+                                  cubit.updateNote(index, _controller.text);
                                   Get.back();
-
-                                  _controller.clear();
                                 }
                               },
                               child: const Text('Update'),
@@ -198,7 +180,7 @@ class _NotePageState extends State<NotePage> {
 
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Colors.black.withAlpha(20),
                             blurRadius: 12,
                             offset: const Offset(0, 5),
                           ),
@@ -230,13 +212,12 @@ class _NotePageState extends State<NotePage> {
                             right: 15,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withAlpha(206),
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
                                 onPressed: () {
-                                  HiveHelper.deleteNote(index);
-                                  setState(() {});
+                                  cubit.deleteNote(index);
                                 },
                                 icon: const Icon(
                                   Icons.delete_outline,
@@ -252,7 +233,10 @@ class _NotePageState extends State<NotePage> {
                   ),
                 ],
               ),
-            ),
+            );
+          }
+        },
+      ),
     );
   }
 }

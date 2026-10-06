@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart' show BlocProvider;
 import 'package:note_app/hive.helper.dart';
-import 'package:note_app/note_page.dart';
+
+import 'cubit/cubit/note_cubit.dart';
+
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'note_page.dart';
+
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   await Hive.initFlutter();
-  await Hive.openBox('note1');
-  Hive.box('note1').put('key1', []);
+
   await Hive.openBox(HiveHelper.noteBox);
+
   await HiveHelper.getNotes();
+
   runApp(const MyApp());
 }
 
@@ -18,6 +26,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(debugShowCheckedModeBanner: false, home: NotePage());
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: BlocProvider(
+        create: (context) => NoteCubit()..getNotes(),
+        child: Scaffold(body: Center(child: NotePageState())),
+      ),
+    );
   }
 }
