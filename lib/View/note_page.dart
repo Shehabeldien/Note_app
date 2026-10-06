@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart' show BlocBuilder, ReadContext;
 import 'package:get/get.dart';
 import 'package:note_app/hive.helper.dart';
 
-import 'cubit/cubit/note_cubit.dart';
+import '../cubit/cubit/note_cubit.dart';
 
 class NotePageState extends StatelessWidget {
   NotePageState({super.key});

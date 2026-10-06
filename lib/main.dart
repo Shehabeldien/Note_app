@@ -7,7 +7,7 @@ import 'cubit/cubit/note_cubit.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'note_page.dart';
+import 'View/note_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
